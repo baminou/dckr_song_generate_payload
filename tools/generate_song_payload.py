@@ -18,6 +18,7 @@ def main():
     parser.add_argument('-o', '--output', dest="output", help="Output file", required=True)
     parser.add_argument('--paired-end', dest="paired_end", help="Experiment is paired end", action='store_true')
     parser.add_argument('--single-end', dest="paired_end", help="Experiment is single end", action='store_false')
+    parser.add_argument('-ac', '--access', dest="access", help="File access, open or controlled", required=True)
     parser.add_argument('-f', '--files', dest="files", nargs='+', help="Path of files to add to the payload", required=True)
     results = parser.parse_args()
 
@@ -28,7 +29,7 @@ def main():
 
     files = []
     for _file in results.files:
-        files.append(get_file_info(_file))
+        files.append(get_file_info(_file,results.access))
 
     json_payload = {}
     json_payload['analysisId'] = results.analysis_id
@@ -66,8 +67,9 @@ def get_donor_info(donor_id):
         'donorSubmitterId': icgc.get_submitter_donor_id_from_donor_id(donor_id)
     }
 
-def get_file_info(fname):
+def get_file_info(fname, access):
     return {
+            'fileAccess':access,
             'fileName': os.path.basename(fname),
             'fileMd5sum': get_file_md5(fname),
             'fileSize': get_file_size(fname),
